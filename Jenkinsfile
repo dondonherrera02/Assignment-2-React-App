@@ -33,5 +33,25 @@ pipeline {
                 '''
             }
         }
+        stage('Deploy') {
+            agent {
+                docker {
+                    image 'node:22.14.0'
+                    reuseNode true
+                }
+            }
+            environment {
+                NETLIFY_AUTH_TOKEN = credentials('netlify-assignment-two-token')
+                NETLIFY_SITE_ID = credentials('netlify-assignment-two-site-id')
+            }
+            steps {
+                sh '''
+                    npm install netlify-cli
+                    node_modules/.bin/netlify --version
+                    node_modules/.bin/netlify status
+                    node_modules/.bin/netlify deploy --dir=build --prod --message="Jenkins build $BUILD_NUMBER"
+                '''
+            }
+        }
     }
 }
